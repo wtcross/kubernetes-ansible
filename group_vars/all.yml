@@ -1,54 +1,41 @@
-# Account name of remote user. Ansible will use this user account to ssh into
-# the managed machines. The user must be able to use sudo without asking
-# for password.
-ansible_ssh_user: root
+---
+environment_name: tcross-demo
+aws_region : us-east-1
+key_name: tcross
 
-# Kubernetes internal network for services.
-# Kubernetes services will get fake IP addresses from this range.
-# This range must not conflict with anything in your infrastructure. These
-# addresses do not need to be routable and must just be an unused block of space.
+zone_domain: demo.testing.ansible.com
+
+vpc_id: vpc-c4e9aea0
+vpc_cidr: 10.0.0.0/16
+
+public_subnet_a_cidr: 10.0.0.0/18
+public_subnet_b_cidr: 10.0.64.0/18
+public_subnet_c_cidr: 10.0.128.0/18
+
+public_subnet_a_az: us-east-1b
+public_subnet_b_az: us-east-1c
+public_subnet_c_az: us-east-1d
+
+public_subnet_a_id: subnet-02768e28
+public_subnet_b_id: subnet-79f1440f
+public_subnet_c_id: subnet-7238f42a
+
+amis:
+  windows_2012_r2_base: ami-5027053a
+  free_bsd_10_2: ami-7389ab19
+  rhel_7_2: ami-28a78842
+  suse_12: ami-84a689ee
+  ubuntu_14_04: ami-b8a689d2
+
+ansible_ssh_user: ansible
 kube_service_addresses: 10.254.0.0/16
-
-# Flannel internal network (optional). When flannel is used, it will assign IP
-# addresses from this range to individual pods.
-# This network must be unused in your network infrastructure!
 kube_overlay_ip: 4.0.0.0
-# Prefix length of kube_overlay_ip range.
 kube_overlay_prefix: 16
-
-
-# Internal DNS configuration.
-# Kubernetes can create and mainatain its own DNS server to resolve service names
-# into appropriate IP addresses. It's highly advisable to run such DNS server,
-# as it greatly simplifies configuration of your applications - you can use
-# service names instead of magic environment variables.
-# You still must manually configure all your containers to use this DNS server,
-# Kubernetes won't do this for you (yet).
-
-# Turn this varable to 'false' to disable whole DNS configuration.
-dns_setup: true
-
-# Internal DNS domain name.
-# This domain must not be used in your network. Services will be discoverable
-# under <service-name>.<namespace>.<domainname>, e.g.
-# myservice.default.kube.local
-dns_domain: kube.local
-
-# IP address of the DNS server.
-# Kubernetes will create a pod with several containers, serving as the DNS
-# server and expose it under this IP address. The IP address must be from
-# the range specified as kube_service_addresses above.
-# And this is the IP address you should use as address of the DNS server
-# in your containers.
+dns_setup: false
+dns_domain: ansikube.local
 dns_server: 10.254.0.10
-
-
-# Amazon Web Services specific options (ignore when running outside AWS).
-
-# When set to "true", this playbook will generate /etc/hosts on all managed
-# machines with hostnames and IP addresses of all machines in inventory file.
-# Use only when your DNS is not working.
 kube_aws_create_etc_hosts: false
+kube_aws_cluster_name: ansikube
 
-# Name of the cluster to create. It must be unique in your AWS account.
-kube_aws_cluster_name: mykube
+rhn_username: tcross@redhat.com
+rhn_password: "!I__am__6770!"

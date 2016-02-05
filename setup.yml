@@ -1,23 +1,45 @@
 ---
-- hosts: all
-  sudo: yes
-  roles:
-          - common
+- hosts: localhost
+  connection: local
+  become: no
+  tasks:
+    - name: Alias etcd hosts
+      add_host:
+        name: "{{ item }}"
+        groups: etcd
+      with_items: groups['tag_Name_ansikube_etcd']
 
-- hosts: etcd
-  sudo: yes
-  roles:
-          - etcd
+    - name: Alias master hosts
+      add_host:
+        name: "{{ item }}"
+        groups: masters
+      with_items: groups['tag_Name_ansikube_master']
 
-- hosts: masters
-  sudo: yes
-  roles:
-          - kubernetes
-          - master
-          - skydns
+    - name: Alias minion hosts
+      add_host:
+        name: "{{ item }}"
+        groups: minions
+      with_items: groups['tag_Name_ansikube_minion']
 
-- hosts: minions
-  sudo: yes
+- hosts: tag_Demo_kubernetes
+  become: yes
   roles:
-          - kubernetes
-          - minion
+    - role: common
+
+- hosts: tag_Demo_kubernetes:&tag_Role_ansikube_etcd
+  become: yes
+  roles:
+    - role: etcd
+
+- hosts: tag_Demo_kubernetes:&tag_Role_ansikube_master
+  become: yes
+  roles:
+    - role: kubernetes
+    - role: master
+    - role: skydns
+
+- hosts: tag_Demo_kubernetes:&tag_Role_ansikube_minion
+  become: yes
+  roles:
+    - role: kubernetes
+    - role: minion

@@ -1,4 +1,7 @@
 ---
+- include: aws.yml
+  when: is_aws
+
 - name: write the config files for api server
   template: src=apiserver.j2 dest=/etc/kubernetes/apiserver
   notify:
@@ -42,6 +45,3 @@
 
 - include: iptables.yml
   when: has_firewalld.rc != 0 and has_iptables.rc == 0
-
-- include: aws.yml
-  when: is_aws

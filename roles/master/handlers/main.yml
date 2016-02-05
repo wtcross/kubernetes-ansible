@@ -17,3 +17,7 @@
 
 - name: restart iptables
   service: name=iptables state=restarted
+
+- name: reload systemctl
+  shell: systemctl --system daemon-reload
+  when: systemd_unit_files | changed

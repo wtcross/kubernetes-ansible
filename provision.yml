@@ -1,0 +1,72 @@
+---
+- hosts: localhost
+  connection: local
+  become: no
+
+  tasks:
+    - name: Provision the etcd instance
+      ec2:
+        group: ansible-demo
+        image: "{{ amis['rhel_7_2'] }}"
+        instance_tags:
+          Name: ansikube-etcd
+          Role: ansikube-etcd
+          Demo: kubernetes
+        key_name: "{{ key_name }}"
+        region: "{{ aws_region }}"
+        zone: "{{ public_subnet_b_az }}"
+        vpc_subnet_id: "{{ public_subnet_b_id }}"
+        instance_type: c4.large
+        wait: yes
+        exact_count: 1
+        assign_public_ip: yes
+        count_tag:
+          Name: ansikube-etcd
+          Role: ansikube-etcd
+          Demo: kubernetes
+
+    - name: Provision the master instance
+      ec2:
+        group: ansible-demo
+        image: "{{ amis['rhel_7_2'] }}"
+        instance_tags:
+          Name: ansikube-master
+          Role: ansikube-master
+          Demo: kubernetes
+        key_name: "{{ key_name }}"
+        region: "{{ aws_region }}"
+        zone: "{{ public_subnet_b_az }}"
+        vpc_subnet_id: "{{ public_subnet_b_id }}"
+        instance_type: c4.large
+        wait: yes
+        exact_count: 1
+        assign_public_ip: yes
+        count_tag:
+          Name: ansikube-master
+          Role: ansikube-master
+          Demo: kubernetes
+
+    - name: Provision the minion instances
+      ec2:
+        group: ansible-demo
+        image: "{{ amis['rhel_7_2'] }}"
+        instance_tags:
+          Name: ansikube-minion
+          Role: "ansikube-minion-{{ item.0 }}"
+          Demo: kubernetes
+        key_name: "{{ key_name }}"
+        region: "{{ aws_region }}"
+        zone: "{{ hostvars['localhost']['public_subnet_' ~ item.1 ~ '_az'] }}"
+        vpc_subnet_id: "{{ hostvars['localhost']['public_subnet_' ~ item.1 ~ '_id'] }}"
+        instance_type: c4.large
+        wait: yes
+        exact_count: 1
+        assign_public_ip: yes
+        count_tag:
+          Name: ansikube-minion
+          Role: "ansikube-minion-{{ item.0 }}"
+          Demo: kubernetes
+      with_indexed_items:
+        - a
+        - b
+        - c
